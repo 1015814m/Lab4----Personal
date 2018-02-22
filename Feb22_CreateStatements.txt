@@ -1,0 +1,412 @@
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Achievement]    Script Date: 2/22/2018 4:50:38 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Achievement](
+	[AchievementID] [int] IDENTITY(1,1) NOT NULL,
+	[Description] [varchar](140) NOT NULL,
+	[Date] [datetime] NOT NULL,
+	[PointsAmount] [int] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[ValueID] [int] NOT NULL,
+	[RecEmployee] [int] NULL,
+	[ApplaudID] [int] NULL,
+ CONSTRAINT [PK_Achievement] PRIMARY KEY CLUSTERED 
+(
+	[AchievementID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Achievement]  WITH CHECK ADD FOREIGN KEY([ApplaudID])
+REFERENCES [dbo].[Applaud] ([ApplaudID])
+GO
+
+ALTER TABLE [dbo].[Achievement]  WITH CHECK ADD  CONSTRAINT [FK__Achieveme__RecEm__49C3F6B7] FOREIGN KEY([RecEmployee])
+REFERENCES [dbo].[Employee] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[Achievement] CHECK CONSTRAINT [FK__Achieveme__RecEm__49C3F6B7]
+GO
+
+ALTER TABLE [dbo].[Achievement]  WITH CHECK ADD  CONSTRAINT [FK_AchievementEmployee] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employee] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[Achievement] CHECK CONSTRAINT [FK_AchievementEmployee]
+GO
+
+ALTER TABLE [dbo].[Achievement]  WITH CHECK ADD  CONSTRAINT [FK_AchievementValue] FOREIGN KEY([ValueID])
+REFERENCES [dbo].[Value] ([ValueID])
+GO
+
+ALTER TABLE [dbo].[Achievement] CHECK CONSTRAINT [FK_AchievementValue]
+GO
+
+--Administrator
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Administrator]    Script Date: 2/22/2018 4:51:05 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Administrator](
+	[AdminID] [int] IDENTITY(1,1) NOT NULL,
+	[FirstName] [varchar](50) NOT NULL,
+	[LastName] [varchar](50) NOT NULL,
+	[Email] [varchar](50) NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [date] NOT NULL,
+	[EmpLoginID] [int] NOT NULL,
+ CONSTRAINT [PK_Administrator] PRIMARY KEY CLUSTERED 
+(
+	[AdminID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Administrator]  WITH CHECK ADD  CONSTRAINT [FK_AdministratorLogin] FOREIGN KEY([EmpLoginID])
+REFERENCES [dbo].[EmployeeLogin] ([EmpLoginID])
+GO
+
+ALTER TABLE [dbo].[Administrator] CHECK CONSTRAINT [FK_AdministratorLogin]
+GO
+
+
+--Department
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Department]    Script Date: 2/22/2018 4:51:18 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Department](
+	[DepartmentID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Description] [varchar](50) NOT NULL,
+	[NumberOfEmployees] [int] NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+ CONSTRAINT [PK_Department] PRIMARY KEY CLUSTERED 
+(
+	[DepartmentID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--Employee
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Employee]    Script Date: 2/22/2018 4:51:35 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Employee](
+	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[FirstName] [varchar](50) NOT NULL,
+	[LastName] [varchar](50) NOT NULL,
+	[Email] [varchar](50) NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [date] NOT NULL,
+	[EmpLoginID] [int] NOT NULL,
+	[Points] [money] NOT NULL,
+ CONSTRAINT [PK_Employee] PRIMARY KEY CLUSTERED 
+(
+	[EmployeeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Employee] ADD  CONSTRAINT [DF__Employee__Points__4AB81AF0]  DEFAULT ((0)) FOR [Points]
+GO
+
+ALTER TABLE [dbo].[Employee]  WITH CHECK ADD  CONSTRAINT [FK_EmpLoginID] FOREIGN KEY([EmpLoginID])
+REFERENCES [dbo].[EmployeeLogin] ([EmpLoginID])
+GO
+
+ALTER TABLE [dbo].[Employee] CHECK CONSTRAINT [FK_EmpLoginID]
+GO
+
+--EmployeeLogin
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[EmployeeLogin]    Script Date: 2/22/2018 4:51:55 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[EmployeeLogin](
+	[EmpLoginID] [int] IDENTITY(1,1) NOT NULL,
+	[UserName] [varchar](50) NOT NULL,
+	[PasswordHash] [nvarchar](128) NOT NULL,
+	[LastLogin] [datetime] NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+ CONSTRAINT [PK_EmployeeLogin] PRIMARY KEY CLUSTERED 
+(
+	[EmpLoginID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--FeedInformation
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[FeedInformation]    Script Date: 2/22/2018 4:52:12 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[FeedInformation](
+	[PostID] [int] IDENTITY(1,1) NOT NULL,
+	[PostTime] [datetime] NOT NULL,
+	[NumOfLikes] [int] NOT NULL,
+	[AchievementID] [int] NULL,
+	[TransactionID] [int] NULL,
+ CONSTRAINT [PK_FeedInformation] PRIMARY KEY CLUSTERED 
+(
+	[PostID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[FeedInformation]  WITH CHECK ADD FOREIGN KEY([TransactionID])
+REFERENCES [dbo].[Transaction] ([TransactionID])
+GO
+
+ALTER TABLE [dbo].[FeedInformation]  WITH CHECK ADD  CONSTRAINT [FK_FeedInformationAchievement] FOREIGN KEY([AchievementID])
+REFERENCES [dbo].[Achievement] ([AchievementID])
+GO
+
+ALTER TABLE [dbo].[FeedInformation] CHECK CONSTRAINT [FK_FeedInformationAchievement]
+GO
+
+--Image
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Image]    Script Date: 2/22/2018 4:52:25 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Image](
+	[ImageID] [int] IDENTITY(1,1) NOT NULL,
+	[ImageFile] [image] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[RewardID] [int] NOT NULL,
+ CONSTRAINT [PK_IMAGE] PRIMARY KEY CLUSTERED 
+(
+	[ImageID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Image]  WITH CHECK ADD  CONSTRAINT [FK_IMAGEEmployee] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employee] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[Image] CHECK CONSTRAINT [FK_IMAGEEmployee]
+GO
+
+ALTER TABLE [dbo].[Image]  WITH CHECK ADD  CONSTRAINT [FK_IMAGEReward] FOREIGN KEY([RewardID])
+REFERENCES [dbo].[RewardItem] ([RewardID])
+GO
+
+ALTER TABLE [dbo].[Image] CHECK CONSTRAINT [FK_IMAGEReward]
+GO
+
+--RewardCategory
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[RewardCategory]    Script Date: 2/22/2018 4:52:43 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[RewardCategory](
+	[CategoryID] [int] IDENTITY(1,1) NOT NULL,
+	[Description] [varchar](50) NOT NULL,
+	[QuantityBought] [int] NOT NULL,
+	[TotalSales] [money] NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+ CONSTRAINT [PK_RewardCategory] PRIMARY KEY CLUSTERED 
+(
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--RewardItem
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[RewardItem]    Script Date: 2/22/2018 4:52:56 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[RewardItem](
+	[RewardID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Description] [varchar](50) NOT NULL,
+	[Price] [money] NOT NULL,
+	[StartDate] [datetime] NOT NULL,
+	[EndDate] [datetime] NULL,
+	[Quantity] [int] NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+	[ProviderID] [int] NOT NULL,
+	[CategoryID] [int] NOT NULL,
+ CONSTRAINT [PK_RewardItem] PRIMARY KEY CLUSTERED 
+(
+	[RewardID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[RewardItem]  WITH CHECK ADD  CONSTRAINT [FK_RewardItemCategory] FOREIGN KEY([CategoryID])
+REFERENCES [dbo].[RewardCategory] ([CategoryID])
+GO
+
+ALTER TABLE [dbo].[RewardItem] CHECK CONSTRAINT [FK_RewardItemCategory]
+GO
+
+ALTER TABLE [dbo].[RewardItem]  WITH CHECK ADD  CONSTRAINT [FK_RewardItemProvider] FOREIGN KEY([ProviderID])
+REFERENCES [dbo].[RewardProvider] ([ProviderID])
+GO
+
+ALTER TABLE [dbo].[RewardItem] CHECK CONSTRAINT [FK_RewardItemProvider]
+GO
+
+--RewardProvider
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[RewardProvider]    Script Date: 2/22/2018 4:53:12 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[RewardProvider](
+	[ProviderID] [int] IDENTITY(1,1) NOT NULL,
+	[ProviderName] [varchar](50) NOT NULL,
+	[ContactFirstName] [varchar](50) NOT NULL,
+	[ContactLastName] [varchar](50) NOT NULL,
+	[ContactPhoneNum] [varchar](50) NOT NULL,
+	[ContactEmail] [varchar](50) NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+ CONSTRAINT [PK_RewardProvider] PRIMARY KEY CLUSTERED 
+(
+	[ProviderID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+--Transaction
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Transaction]    Script Date: 2/22/2018 4:53:30 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Transaction](
+	[TransactionID] [int] IDENTITY(1,1) NOT NULL,
+	[Cost] [money] NOT NULL,
+	[PurchaseTime] [datetime] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[RewardID] [int] NOT NULL,
+ CONSTRAINT [PK_Transaction] PRIMARY KEY CLUSTERED 
+(
+	[TransactionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Transaction]  WITH CHECK ADD  CONSTRAINT [FK_TransactionEmployee] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employee] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[Transaction] CHECK CONSTRAINT [FK_TransactionEmployee]
+GO
+
+ALTER TABLE [dbo].[Transaction]  WITH CHECK ADD  CONSTRAINT [FK_TransactionReward] FOREIGN KEY([RewardID])
+REFERENCES [dbo].[RewardItem] ([RewardID])
+GO
+
+ALTER TABLE [dbo].[Transaction] CHECK CONSTRAINT [FK_TransactionReward]
+GO
+
+--Value
+
+USE [Lab4]
+GO
+
+/****** Object:  Table [dbo].[Value]    Script Date: 2/22/2018 4:53:42 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Value](
+	[ValueID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[LastUpdatedBy] [varchar](50) NOT NULL,
+	[LastUpdated] [datetime] NOT NULL,
+ CONSTRAINT [PK_Value] PRIMARY KEY CLUSTERED 
+(
+	[ValueID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
