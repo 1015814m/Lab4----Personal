@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using database;
+using System.Data.SqlClient;
 
 public partial class HomePage : System.Web.UI.Page
 {
@@ -82,6 +84,44 @@ public partial class HomePage : System.Web.UI.Page
 
     protected void postInformation()
     {
+        try
+        {
+            string[,] postArray = new string[20, 5];
+            string commandText = "SELECT TOP (20) * FROM [dbo].[FeedInformation] ORDER BY PostID DESC";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
 
+            SqlDataReader reader = select.ExecuteReader();
+
+            while (reader.HasRows)
+            {
+                reader.Read();
+                postArray[0, 0] = reader["PostID"].ToString();
+                postArray[0, 1] = reader["PostTime"].ToString();
+                postArray[0, 2] = reader["NumOfLikes"].ToString();
+                if (reader["AchievementID"] != null)
+                {
+                    postArray[0, 3] = reader["AchievementID"].ToString();
+                }
+                else
+                {
+                    postArray[0, 3] = "null";
+                }
+                if (reader["TransactionID"] != null)
+                {
+                    postArray[0, 4] = reader["TransactionID"].ToString();
+                }
+                else
+                {
+                    postArray[0, 4] = "null";
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
-}
+
