@@ -193,6 +193,7 @@ public partial class _Default : System.Web.UI.Page
             {
                 reader.Read();
                 int empLoginID = (int)reader["EmpLoginID"];
+                conn.Close();
                 return empLoginID;
             }
             else

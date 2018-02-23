@@ -165,7 +165,7 @@ public class Employee
         {
             return points;
         }
-        private set
+        set
         {
             points = value;
         }

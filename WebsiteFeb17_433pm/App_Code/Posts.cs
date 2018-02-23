@@ -9,11 +9,10 @@ using System.Web;
 public class Posts
 {
     private int postID;
-    private string post;
     private DateTime postTime;
     private int likes;
-    private int employeeID;
     private int achievementID;
+    private int transactionID;
     /// <summary>
     /// For creating a post
     /// </summary>
@@ -23,14 +22,13 @@ public class Posts
     /// <param name="likes"></param>
     /// <param name="employeeID"></param>
     /// <param name="achievementID"></param>
-    public Posts(int postID, string post, DateTime postTime, int likes, int employeeID, int achievementID)
+    public Posts(int postID, DateTime postTime, int likes, int achievementID, int transactionID)
     {
         PostID = postID;
-        Post = post;
         PostTime = postTime;
         Likes = likes;
-        EmployeeID = employeeID;
         AchievementID = achievementID;
+        TransactionID = transactionID;
     }
 
     public int PostID
@@ -42,18 +40,6 @@ public class Posts
         private set
         {
             postID = value;
-        }
-    }
-
-    public string Post
-    {
-        get
-        {
-            return post;
-        }
-        private set
-        {
-            post = value;
         }
     }
 
@@ -81,18 +67,6 @@ public class Posts
         }
     }
 
-    public int EmployeeID
-    {
-        get
-        {
-            return employeeID;
-        }
-        private set
-        {
-            employeeID = value;
-        }
-    }
-
     public int AchievementID
     {
         get
@@ -104,4 +78,17 @@ public class Posts
             achievementID = value;
         }
     }
+
+    public int TransactionID
+    {
+        get
+        {
+            return transactionID;
+        }
+        private set
+        {
+            transactionID = value;
+        }
+    }
+
 }

@@ -9,21 +9,22 @@ using System.Data.SqlClient;
 
 public partial class HomePage : System.Web.UI.Page
 {
-    
-    
+    static Employee user;
+    static int numOfPosts = 20;
+    static Posts[] postsArray = new Posts[numOfPosts];
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (Session["employeeLoggedIn"] == null)
         {
-            Response.Redirect("Login.aspx"); 
+            Response.Redirect("Login.aspx");
         }
         if (Session["employeeLoggedIn"].ToString() != "True")
         {
-            Response.Redirect("Login.aspx"); 
+            Response.Redirect("Login.aspx");
         }
-        
 
-        Employee user = (Employee)Session["user"];
+        user = (Employee)Session["user"];
 
         if (user.Admin == true)
         {
@@ -33,16 +34,15 @@ public partial class HomePage : System.Web.UI.Page
         welcomeMessage.Text = "Welcome " + user.FirstName + " " + user.LastName + " You currently have " + Decimal.Round(user.Points, 2) + " points!";
         form1.Controls.Add(new LiteralControl("<br />"));
 
-        Image[] imgArray = new Image[100];
-        TextBox[] txtArray = new TextBox[100];
-        Button[] btnArray = new Button[100];
-        Label[] lblArray = new Label[100];
+        Image[] imgArray = new Image[numOfPosts];
+        TextBox[] txtArray = new TextBox[numOfPosts];
+        Button[] btnArray = new Button[numOfPosts];
+        Label[] lblArray = new Label[numOfPosts];
 
-        int displayNum = 100;
 
-        
 
-        for (int i = 0; i < displayNum; i++)
+
+        for (int i = 0; i < numOfPosts; i++)
         {
             imgArray[i] = new Image();
             imgArray[i].Height = 50;
@@ -62,19 +62,46 @@ public partial class HomePage : System.Web.UI.Page
             lblArray[i].Text = " Likes!";
         }
 
-        
-
-        for (int a = 0; a < 100; a++)
+        postInformation();
+        try
         {
-            form1.Controls.Add(imgArray[a]);
-            form1.Controls.Add(txtArray[a]);
-            form1.Controls.Add(new LiteralControl("<br />"));
-            form1.Controls.Add(btnArray[a]);
-            form1.Controls.Add(lblArray[a]);
-            form1.Controls.Add(new LiteralControl("<br />"));
-            form1.Controls.Add(new LiteralControl("<br />"));
-            //LoginView1.Controls.Add()
+            if (postsArray != null)
+            {
+                for (int a = 0; a < numOfPosts; a++)
+                {
+                    form1.Controls.Add(imgArray[a]);
+                    imgArray[a].ImageUrl = "https://s3.amazonaws.com/484images/DefaultImg.jpg";
+                    
+                    form1.Controls.Add(txtArray[a]);
+                    if (postsArray[a].AchievementID == -1)
+                    {
+                        txtArray[a].Text += findEmployee(findTransaction(postsArray[a].TransactionID).EmployeeID) + " used their points to purchase: "
+                            + findTransaction(postsArray[a].TransactionID).RewardID + " for $" + findTransaction(postsArray[a].TransactionID).Cost;
+                    }
+                    if (postsArray[a].TransactionID == -1)
+                    {
+                        txtArray[a].Text += findEmployee(findAchievement(postsArray[a].AchievementID).RecEmployee) + " received kudos for  "
+                            + findAchievement(postsArray[a].AchievementID).Description + " from "
+                            + findEmployee(findAchievement(postsArray[a].AchievementID).EmployeeID);
+                    }
+                    form1.Controls.Add(new LiteralControl("<br />"));
+                    form1.Controls.Add(btnArray[a]);
+                    form1.Controls.Add(lblArray[a]);
+                    form1.Controls.Add(new LiteralControl("<br />"));
+                    form1.Controls.Add(new LiteralControl("<br />"));
+                    //LoginView1.Controls.Add()
+                }
+            }
+            else
+            {
+                errorMessage.Text += "Here";
+            }
         }
+        catch (Exception ex)
+        {
+            errorMessage.Text += ex + "post error";
+        }
+
     }
 
     protected void likeClick(object sender, EventArgs e, Control cntrl)
@@ -86,42 +113,157 @@ public partial class HomePage : System.Web.UI.Page
     {
         try
         {
-            string[,] postArray = new string[20, 5];
-            string commandText = "SELECT TOP (20) * FROM [dbo].[FeedInformation] ORDER BY PostID DESC";
+            string commandText = "SELECT TOP (" + numOfPosts + ") * FROM [dbo].[FeedInformation] ORDER BY PostID DESC";
             SqlConnection conn = ProjectDB.connectToDB();
             SqlCommand select = new SqlCommand(commandText, conn);
 
             SqlDataReader reader = select.ExecuteReader();
+            int a = 0;
+            
+            while (reader.Read())
+            {
+                int achievementID, transactionID = -1;
+                int postID = (int)reader[0];
+                DateTime postTime = (DateTime)reader[1];
+                int numOfLikes = (int)reader[2];
 
-            while (reader.HasRows)
+                if (!reader.IsDBNull(3))
+                {
+                    achievementID = (int)reader[3];
+                }
+                else
+                {
+                    achievementID = -1;
+                }
+                if (!reader.IsDBNull(4))
+                {
+                    transactionID = (int)reader[4];
+                }
+                else
+                {
+                    transactionID = -1;
+                }
+
+                postsArray[a] = new Posts(postID, postTime, numOfLikes, achievementID, transactionID);
+                a++;
+            }
+            conn.Close();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Text += "\n" + ex;
+        }
+
+    }
+
+    /// <summary>
+    /// Finds the information related to the specified achievement id
+    ///
+    /// </summary>
+    /// <param name="id">This is the achievement id that you are trying to find</param>
+    /// <returns>Returns an array of objects that is equal to the achievement information in the database</returns>
+    protected Achievement findAchievement(int id)
+    {
+
+        try
+        {
+            string commandText = "SELECT TOP 1 Description, Date, PointsAmount, EmployeeID, ValueID, RecEmployee FROM [DBO].[ACHIEVEMENT] WHERE AchievementID = @AchievementID";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
+
+            select.Parameters.AddWithValue("@AchievementID", id);
+
+            SqlDataReader reader = select.ExecuteReader();
+
+            if(reader.HasRows)
             {
                 reader.Read();
-                postArray[0, 0] = reader["PostID"].ToString();
-                postArray[0, 1] = reader["PostTime"].ToString();
-                postArray[0, 2] = reader["NumOfLikes"].ToString();
-                if (reader["AchievementID"] != null)
-                {
-                    postArray[0, 3] = reader["AchievementID"].ToString();
-                }
-                else
-                {
-                    postArray[0, 3] = "null";
-                }
-                if (reader["TransactionID"] != null)
-                {
-                    postArray[0, 4] = reader["TransactionID"].ToString();
-                }
-                else
-                {
-                    postArray[0, 4] = "null";
-                }
-
+                string description = reader["Description"].ToString();
+                DateTime date = (DateTime)reader["Date"];
+                int points = (int)reader["PointsAmount"];
+                int employeeID = (int)reader["EmployeeID"];
+                int valueID = (int)reader["ValueID"];
+                int recEmployee = (int)reader["RecEmployee"];
+                conn.Close();
+                Achievement a = new Achievement(id, description, date, points, employeeID, valueID, recEmployee);
+                return a;
             }
+
 
         }
         catch (Exception ex)
         {
-
+            
+            errorMessage.Text += "Error Finding Achievement " + ex;
         }
+        errorMessage.Text += "Reached end of Achievement";
+        return null;
     }
+
+    protected string findEmployee(int id)
+    {
+        string employeeName = "";
+        try
+        {
+            string commandText = "SELECT TOP 1 FirstName, LastName FROM [DBO].[EMPLOYEE] WHERE EmployeeID = @EmployeeID";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
+
+            select.Parameters.AddWithValue("@EmployeeID", id);
+
+            SqlDataReader reader = select.ExecuteReader();
+
+            if(reader.HasRows)
+            {
+                reader.Read();
+                string firstName = reader["FirstName"].ToString();
+                string lastName = reader["LastName"].ToString();
+                employeeName = firstName + " " + lastName;
+                conn.Close();
+                return employeeName;
+            }
+            conn.Close();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Text += "Error Finding Employee" + ex;
+        }
+        return employeeName;
+    }
+
+    //
+    protected Transaction findTransaction(int id)
+    {
+        try
+        {
+            string commandText = "SELECT TOP 1 Cost, PurchaseTime, EmployeeID, RewardID FROM [DBO].[TRANSACTION] WHERE TransactionID = @TransactionID";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
+
+            select.Parameters.AddWithValue("@TransactionID", id);
+
+            SqlDataReader reader = select.ExecuteReader();
+
+            if(reader.HasRows)
+            {
+                reader.Read();
+                Decimal cost = (Decimal)reader["Cost"];
+                DateTime purchaseTime = (DateTime)reader["PurchaseTime"];
+                int employeeID = (int)reader["EmployeeID"];
+                int rewardID = (int)reader["RewardID"];
+
+                Transaction tran = new Transaction(id, cost, purchaseTime, employeeID, rewardID);
+                conn.Close();
+                return tran;
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Text += "Error Finding Transaction " + ex;
+        }
+        errorMessage.Text += "Reached end of transaction";
+        return null;
+    }
+}
 
