@@ -34,7 +34,7 @@ public partial class HomePage : System.Web.UI.Page
             Response.Redirect("Admin.aspx");
         }
 
-        welcomeMessage.Text = "Welcome " + user.FirstName + " " + user.LastName + " You currently have " + Decimal.Round(user.Points, 2) + " points!";
+        
         form1.Controls.Add(new LiteralControl("<br />"));
 
         Image[] imgArray = new Image[numOfPosts];

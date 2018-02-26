@@ -25,6 +25,8 @@ public partial class Rewards : System.Web.UI.Page
             Response.Redirect("Login.aspx");
         }
         user = (Employee)Session["user"];
+        user.Points = getPoints(findEmployeeID(user.EmpLoginID));
+        Session["user"] = user;
 
         num = countRewards();
         itemArray = new RewardItem[num];
@@ -46,6 +48,7 @@ public partial class Rewards : System.Web.UI.Page
             imgArray[i].Width = 100;
             imgArray[i].BorderStyle = BorderStyle.Solid;
             
+            
 
             txtArray[i] = new TextBox();
             txtArray[i].Height = 200;
@@ -58,6 +61,7 @@ public partial class Rewards : System.Web.UI.Page
             btnArray[i].Click += getControl;
 
             feed.Controls.Add(imgArray[i]);
+            imgArray[i].ImageUrl = findImage(itemArray[i].RewardID);
             feed.Controls.Add(txtArray[i]);
             feed.Controls.Add(new LiteralControl("<br />"));
             feed.Controls.Add(btnArray[i]);
@@ -397,6 +401,61 @@ public partial class Rewards : System.Web.UI.Page
         }
     }
 
+    protected string findImage(int id)
+    {
+        string img = "https://s3.amazonaws.com/484imagescourtney/default.jpg";
+
+        try
+        {
+            string commandText = "SELECT TOP 1 ImageURL from [dbo].[Image] WHERE RewardID = @RewardID";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
+
+            select.Parameters.AddWithValue("@RewardID", id);
+
+            SqlDataReader reader = select.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                reader.Read();
+                img = reader["ImageURL"].ToString();
+            }
+
+            conn.Close();
+            return img;
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Text = "Error Finding Image " + ex;
+            return img;
+        }
+    }
+    protected Decimal getPoints(int id)
+    {
+        Decimal points = 0;
+        try
+        {
+            string commandText = "SELECT [Points] FROM [dbo].[Employee] WHERE [EmployeeID] = @EmployeeID";
+            SqlConnection conn = ProjectDB.connectToDB();
+            SqlCommand select = new SqlCommand(commandText, conn);
+
+            select.Parameters.AddWithValue("@EmployeeID", id);
+
+            SqlDataReader reader = select.ExecuteReader();
+
+            if(reader.HasRows)
+            {
+                reader.Read();
+                points = (Decimal)reader["Points"];
+            }
+            conn.Close();
+        }
+        catch (Exception)
+        {
+
+        }
+        return points;
+    }
 
 
 
